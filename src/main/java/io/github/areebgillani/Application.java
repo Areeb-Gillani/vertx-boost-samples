@@ -62,4 +62,8 @@ public class Application extends AbstractVerticle {
                         .setConfig(new JsonObject().put("path", "config.json")))
                 .addStore(new ConfigStoreOptions().setType("sys"));
     }
+    public static void main(String[] args) {
+        Application app = new Application();
+        app.init();
+    }
 }
