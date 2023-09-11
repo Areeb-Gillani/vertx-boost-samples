@@ -32,33 +32,7 @@ dependencies {
     compileOnly("io.vertx:vertx-codegen:4.4.5")
     annotationProcessor("io.vertx:vertx-codegen:4.4.5:processor")
     annotationProcessor("io.vertx:vertx-sql-client-templates:4.4.5")
-
 }
-/*sourceSets {
-    create("generated") {
-        java.srcDir("${projectDir}/src/generated/java")
-    }
-}*/
-tasks.create<JavaCompile>("VertxCodeGenProcessor"){
-
-    source = sourceSets.main.get().allJava
-    classpath =  configurations.compileClasspath.get() + configurations.annotationProcessor.get()
-    options.annotationProcessorPath = configurations.annotationProcessor.get()
-    options.compilerArgs = listOf(
-            "-proc:only",
-            "-processor", "io.vertx.codegen.CodeGenProcessor",
-            "-Acodegen.output=${projectDir}/src/main"
-    )
-    destinationDirectory = file("${projectDir}/src/main/java")
-}
-tasks.compileJava{
-    dependsOn("VertxCodeGenProcessor")
-    //source += sourceSets.getByName("generated").java
-    options.compilerArgs = listOf("-proc:none")
-}
-/*tasks.clean {
-    delete(sourceSets.getByName("generated").java.srcDirs)
-}*/
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
 }
