@@ -31,7 +31,6 @@ public class Application extends AbstractVerticle {
     public void init() {
         vertx = Vertx.vertx();
         router = Router.router(vertx);
-        logger.info("PID: " + ProcessHandle.current().pid());
         ConfigRetriever.create(vertx, initRetrieverConfig()).getConfig().onComplete(ar -> {
             if (ar.failed()) {
                 logger.error("Failed to retrieve configuration..");

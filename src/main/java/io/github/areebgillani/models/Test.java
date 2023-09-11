@@ -1,6 +1,8 @@
 package io.github.areebgillani.models;
 
+
 import io.vertx.codegen.annotations.DataObject;
+import io.vertx.core.json.JsonObject;
 import io.vertx.sqlclient.templates.annotations.Column;
 import io.vertx.sqlclient.templates.annotations.ParametersMapped;
 
@@ -17,6 +19,8 @@ public class Test {
     String entryBy;
 
     public Test() {
+    }
+    public Test(JsonObject obj) {
     }
 
     public Test(String message, String entryTime, String id, String entryBy) {

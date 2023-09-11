@@ -5,6 +5,7 @@ import io.github.areebgillani.aspects.Autowired;
 import io.github.areebgillani.aspects.Service;
 import io.github.areebgillani.mappers.Mapper;
 import io.github.areebgillani.models.Test;
+import io.github.areebgillani.models.TestParametersMapper;
 import io.github.areebgillani.repositories.DatabaseRepo;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Vertx;
@@ -31,7 +32,7 @@ public class ExampleService extends AbstractVerticle {
         t.setEntryTime(System.currentTimeMillis()+"");
         t.setId(Math.random()+"");
         t.setMessage("Message saved for "+vertxJsonObject.getString("username"));
-        myRepo.save(t, "Insert into Test values (#{id}, #{message}, #{entry_by}, #{entry_time})", Mapper.getTestMapper());
+        myRepo.save(t, "Insert into Test values (#{id}, #{message}, #{entry_by}, #{entry_time})", TestParametersMapper.INSTANCE);
         message.reply("Data Saved");
     }
 }
