@@ -73,6 +73,8 @@ public class Test {
     ...
 }
 ```
+#### Note:
+- In case of code-gen, a model should have a constructor with JsonObject as param. Also needs a package-info.java for package identification.
 ### Repository
 ### CrudRepository
 ```java
