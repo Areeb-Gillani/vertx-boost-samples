@@ -5,7 +5,6 @@ import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Context;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.impl.logging.Logger;
@@ -13,46 +12,61 @@ import io.vertx.core.impl.logging.LoggerFactory;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 
+import java.util.concurrent.CountDownLatch;
+
 public class Application extends AbstractVerticle {
     Logger logger = LoggerFactory.getLogger(Application.class);
     Vertx vertx;
     Router router;
-    public static JsonObject config;
-    @Override
-    public void start() throws Exception {
-        super.start();
-        logger.info("Starting Vertx Application");
-        vertx.createHttpServer()
-                .requestHandler(router)
-                .listen(config().getInteger("port", 8080))
-                .onSuccess(server -> logger.info(("HTTP server started at port: " + server.actualPort())))
-                .onFailure(failed -> System.out.println(failed.getMessage()));
-    }
-    public void init() {
+    public JsonObject config;
+    public Application() throws InterruptedException {
         vertx = Vertx.vertx();
         router = Router.router(vertx);
+        loadConfig();
+        startServer();
+    }
+
+    private void loadConfig() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
         ConfigRetriever.create(vertx, initRetrieverConfig()).getConfig().onComplete(ar -> {
             if (ar.failed()) {
-                logger.error("Failed to retrieve configuration..");
+                latch.countDown();
+                logger.error("Failed to retrieve configuration.");
             } else {
                 config = ar.result();
-
-                logger.info("Starting the app with config.");
-
-                vertx.deployVerticle(this, new DeploymentOptions().setConfig(config))
-                        .onSuccess(resp->{
-                            Context cn = Vertx.currentContext();
-                            Booster booster = new Booster(vertx, router, config);
-                            try {
-                                booster.boost(this.getClass().getPackage().getName());
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        })
-                        .onFailure(failed -> System.out.println(failed.getMessage()));
+                latch.countDown();
+                logger.info("Configuration loaded.");
             }
         });
+        latch.await();
     }
+
+    private void startServer() {
+        if(config!=null){
+            scanAndDeployVerticles();
+            logger.info("Starting Vertx Application Server...");
+            vertx.createHttpServer()
+                    .requestHandler(router)
+                    .listen(config().getInteger("port", 8080))
+                    .onSuccess(server -> logger.info(("HTTP server started at port: " + server.actualPort())))
+                    .onFailure(failed -> System.out.println(failed.getMessage()));
+        }else
+            logger.info("Unable to start the server.");
+    }
+
+    private void scanAndDeployVerticles() {
+        vertx.deployVerticle(this, new DeploymentOptions().setConfig(config))
+                .onSuccess(resp->{
+                    Booster booster = new Booster(vertx, router, config);
+                    try {
+                        booster.boost(this.getClass().getPackage().getName());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .onFailure(failed -> System.out.println(failed.getMessage()));
+    }
+
     private ConfigRetrieverOptions initRetrieverConfig() {
         return new ConfigRetrieverOptions()
                 .addStore(new ConfigStoreOptions()
@@ -61,8 +75,8 @@ public class Application extends AbstractVerticle {
                         .setConfig(new JsonObject().put("path", "config.json")))
                 .addStore(new ConfigStoreOptions().setType("sys"));
     }
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Application app = new Application();
-        app.init();
+        app.start();
     }
 }
