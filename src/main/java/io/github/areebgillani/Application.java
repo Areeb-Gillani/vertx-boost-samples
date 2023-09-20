@@ -19,11 +19,18 @@ public class Application extends AbstractVerticle {
     Vertx vertx;
     Router router;
     public JsonObject config;
+
+    @Override
+    public void start() throws Exception {
+        super.start();
+        startServer();
+    }
+
     public Application() throws InterruptedException {
         vertx = Vertx.vertx();
         router = Router.router(vertx);
         loadConfig();
-        startServer();
+        scanAndDeployVerticles();
     }
 
     private void loadConfig() throws InterruptedException {
@@ -42,29 +49,29 @@ public class Application extends AbstractVerticle {
     }
 
     private void startServer() {
-        if(config!=null){
-            scanAndDeployVerticles();
-            logger.info("Starting Vertx Application Server...");
-            vertx.createHttpServer()
-                    .requestHandler(router)
-                    .listen(config().getInteger("port", 8080))
-                    .onSuccess(server -> logger.info(("HTTP server started at port: " + server.actualPort())))
-                    .onFailure(failed -> System.out.println(failed.getMessage()));
-        }else
-            logger.info("Unable to start the server.");
+        logger.info("Starting Vertx Application Server...");
+        vertx.createHttpServer()
+                .requestHandler(router)
+                .listen(config().getInteger("port", 8080))
+                .onSuccess(server -> logger.info(("HTTP server started at port: " + server.actualPort())))
+                .onFailure(failed -> System.out.println(failed.getMessage()));
+
     }
 
     private void scanAndDeployVerticles() {
-        vertx.deployVerticle(this, new DeploymentOptions().setConfig(config))
-                .onSuccess(resp->{
-                    Booster booster = new Booster(vertx, router, config);
-                    try {
-                        booster.boost(this.getClass().getPackage().getName());
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .onFailure(failed -> System.out.println(failed.getMessage()));
+        if (config != null) {
+            vertx.deployVerticle(this, new DeploymentOptions().setConfig(config))
+                    .onSuccess(resp -> {
+                        Booster booster = new Booster(vertx, router, config);
+                        try {
+                            booster.boost(this.getClass().getPackage().getName());
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .onFailure(failed -> System.out.println(failed.getMessage()));
+        } else
+            logger.info("Unable to deploy verticles without proper config.");
     }
 
     private ConfigRetrieverOptions initRetrieverConfig() {
@@ -75,6 +82,7 @@ public class Application extends AbstractVerticle {
                         .setConfig(new JsonObject().put("path", "config.json")))
                 .addStore(new ConfigStoreOptions().setType("sys"));
     }
+
     public static void main(String[] args) throws Exception {
         Application app = new Application();
         app.start();
