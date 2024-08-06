@@ -13,6 +13,7 @@ repositories {
     mavenCentral()
     // To include Boost libraries
     maven("https://jitpack.io")
+    mavenLocal()
 }
 
 dependencies {
@@ -24,7 +25,7 @@ dependencies {
     implementation("io.vertx:vertx-core:4.4.5")
     // Boost libraries
     implementation("com.github.Areeb-Gillani:vertx-boost-db:0.0.3")
-    implementation("com.github.Areeb-Gillani:vertx-boost:0.0.6")
+    implementation("com.github.Areeb-Gillani:vertx-boost:0.0.12")
     // For database inclusion
     implementation("io.vertx:vertx-sql-client-templates:4.4.5")
     implementation("io.vertx:vertx-mysql-client:4.4.5")

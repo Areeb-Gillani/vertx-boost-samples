@@ -2,6 +2,7 @@ package io.github.areebgillani.services;
 
 import io.github.areebgillani.aspects.Autowired;
 import io.github.areebgillani.aspects.Service;
+import io.github.areebgillani.boost.AbstractService;
 import io.github.areebgillani.models.Test;
 import io.github.areebgillani.models.TestParametersMapper;
 import io.github.areebgillani.repositories.DatabaseRepo;
@@ -11,13 +12,18 @@ import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 
 @Service("ExampleWorker") // It is the same name that is described in configuration.
-public class ExampleService extends AbstractVerticle {
+public class ExampleService extends AbstractService {
     @Autowired
     DatabaseRepo myRepo;
 
     @Override
-    public void start() {
-        Vertx.currentContext().owner().eventBus().consumer("MyTopic", this::replyHiToUser);
+    public void bindTopics() {
+        eventBus.consumer("MyTopic", this::replyHiToUser);
+        eventBus.consumer("VerticleConfig", this::configVerticle);
+    }
+
+    private void configVerticle(Message<JsonObject> tMessage) {
+
     }
 
     private void replyHiToUser(Message<Object> message) {
