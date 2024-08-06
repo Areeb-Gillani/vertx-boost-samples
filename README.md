@@ -1,10 +1,10 @@
 # vertx-boost-samples
-Sample project to display the usage of vertx-boost (https://github.com/Areeb-Gillani/vertx-boost/) and vertx-boost-db (https://github.com/Areeb-Gillani/vertx-boost/). Please visit these repositories to get the basic knowledge of what I am targeting in this sample code. If you don't want to check the repos then at least make sure you have basic understanding of Vertx (https://vertx.io)
+Sample project to display the usage of vertx-boost (https://github.com/Areeb-Gillani/vertx-boost/) and vertx-boost-db (https://github.com/Areeb-Gillani/vertx-boost-db/). Please visit these repositories to get the basic knowledge of what I am targeting in this sample code. If you don't want to check the repos then at least make sure you have basic understanding of Vertx (https://vertx.io)
 
 ### RestController
 ```java
 @RestController
-public class ExampleController extends AbstractVerticle{
+public class ExampleController extends AbstractController{
     @GetMapping("/sayHi")
     public String sayHi(){
         return "hi";
@@ -19,7 +19,7 @@ public class ExampleController extends AbstractVerticle{
     }
     @PostMapping("/replyHiToUser")
     public void replyHiToUser(JsonObject body, RoutingContext context){
-         vertx.eventBus().request("MyTopic", body, reply->{
+         eventBus.request("MyTopic", body, reply->{
             if(reply.succeeded()){
                 context.json(reply.result().body());
             }
@@ -35,13 +35,13 @@ public class ExampleController extends AbstractVerticle{
 ### Service
 ```java
 @Service("ExampleWorker")
-public class ExampleService extends AbstractVerticle {
+public class ExampleService extends AbstractService {
     @Autowired
     DatabaseRepo myRepo;
 
     @Override
     public void start() {
-        Vertx.currentContext().owner().eventBus().consumer("MyTopic", this::replyHiToUser);
+        eventBus.consumer("MyTopic", this::replyHiToUser);
     }
 
     private void replyHiToUser(Message<Object> message) {
