@@ -16,7 +16,7 @@ public class Application extends BoostApplication {
         run();
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         Launcher l = new Launcher();
         l.dispatch(new String[]{"run", Application.class.getCanonicalName(), "--launcher-class="+Launcher.class.getCanonicalName()});
     }
