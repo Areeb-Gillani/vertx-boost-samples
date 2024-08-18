@@ -1,5 +1,10 @@
 {
-  "http.port": 8087,
+  "server": {
+    "http": {
+      "port": 8087,
+      "enable": true
+    }
+  },
   "workers":{
     "ExampleWorker":{
       "instance":5,
