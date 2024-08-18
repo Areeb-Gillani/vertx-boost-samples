@@ -6,8 +6,6 @@ import io.github.areebgillani.aspects.RequestParam;
 import io.github.areebgillani.aspects.RestController;
 import io.github.areebgillani.boost.AbstractController;
 import io.github.areebgillani.boost.cache.HttpRequest;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
@@ -33,9 +31,9 @@ public class ExampleController extends AbstractController {
             }
         });
     }
-    @PostMapping("/configVerticle")
+    @PostMapping("/someURL")
     public void configVerticle(JsonObject body, HttpRequest request){
-        eventBus.request("VerticleConfig", body, request.getResponseHandler());
+        eventBus.request("someOtherTopic", body, request.getResponseHandler());
     }
 
 }
