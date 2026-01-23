@@ -2,13 +2,15 @@
   "server": {
     "http": {
       "port": 8087,
-      "enable": true
+      "enable": true,
+      "instance": 1
     }
   },
-  "workers":{
-    "ExampleWorker":{
-      "instance":5,
-      "poolSize":6
+  "ServiceUnits": {
+    "ExampleWorker": {
+      "instance": 5,
+      "poolSize": 6,
+      "type": "W"
     }
   },
   "dbConnections": {
