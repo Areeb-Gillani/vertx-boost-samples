@@ -1,7 +1,7 @@
 package io.github.areebgillani.services;
 
-import io.github.areebgillani.aspects.Autowired;
-import io.github.areebgillani.aspects.Service;
+import io.github.areebgillani.boost.aspects.Autowired;
+import io.github.areebgillani.boost.aspects.Service;
 import io.github.areebgillani.boost.AbstractService;
 import io.github.areebgillani.repositories.DatabaseRepo;
 import io.vertx.core.eventbus.Message;
@@ -20,11 +20,9 @@ public class ExampleService extends AbstractService {
 
     private void replyHiToUser(Message<Object> message) {
         JsonObject vertxJsonObject = (JsonObject) message.body();
-        try {
-            message.reply(myRepo.saveData(vertxJsonObject).get()?"Data Saved":"Data saving error");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        myRepo.saveData(vertxJsonObject)
+            .onSuccess(result -> message.reply(result ? "Data Saved" : "Data saving error"))
+            .onFailure(err -> message.fail(500, err.getMessage()));
     }
     private void someOtherTopic(Message<JsonObject> tMessage) {
         //TODO add your code here

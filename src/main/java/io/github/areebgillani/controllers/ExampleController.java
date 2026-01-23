@@ -1,11 +1,10 @@
 package io.github.areebgillani.controllers;
 
-import io.github.areebgillani.aspects.GetMapping;
-import io.github.areebgillani.aspects.PostMapping;
-import io.github.areebgillani.aspects.RequestParam;
-import io.github.areebgillani.aspects.RestController;
+import io.github.areebgillani.boost.aspects.GetMapping;
+import io.github.areebgillani.boost.aspects.PostMapping;
+import io.github.areebgillani.boost.aspects.RequestParam;
+import io.github.areebgillani.boost.aspects.RestController;
 import io.github.areebgillani.boost.AbstractController;
-import io.github.areebgillani.boost.cache.HttpRequest;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
@@ -32,8 +31,14 @@ public class ExampleController extends AbstractController {
         });
     }
     @PostMapping("/someURL")
-    public void configVerticle(JsonObject body, HttpRequest request){
-        eventBus.request("someOtherTopic", body, request.getResponseHandler());
+    public void configVerticle(JsonObject body, RoutingContext context){
+        eventBus.request("someOtherTopic", body, reply -> {
+            if (reply.succeeded()) {
+                context.json(reply.result().body());
+            } else {
+                context.response().setStatusCode(500).end(reply.cause().getMessage());
+            }
+        });
     }
 
 }
